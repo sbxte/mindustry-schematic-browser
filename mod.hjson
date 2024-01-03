@@ -1,17 +1,17 @@
 #the mod name as displayed in-game
-displayName: "Java Mod Template"
+displayName: "Schematic Browser Reworked"
 
 #the internal name of your mod
-name: "example-java-mod"
+name: "schematic-browser"
 
 #your name
-author: "You"
+author: "SByte, Eeve-lyn"
 
 #the fully qualified main class of the mod
-main: "example.ExampleJavaMod"
+main: "schembrowser.SchematicBrowser"
 
 #the mod description as seen in the mod dialog
-description: "A Mindustry Java mod template."
+description: "A mod for browsing schematic repositories."
 
 #the mod version
 version: 1.0
@@ -21,3 +21,5 @@ minGameVersion: 145
 
 #this is a java mod
 java: true
+
+hidden: true
