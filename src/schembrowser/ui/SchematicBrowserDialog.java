@@ -470,7 +470,7 @@ public class SchematicBrowserDialog extends BaseDialog {
                     }
                 } catch (Throwable e) {
                     Log.err("Error parsing schematic " + link + " " + f.name(), e);
-                    ui.showErrorMessage(Core.bundle.format("schematicbrowser.fail.parse", link, f.name()));
+//                    ui.showErrorMessage(Core.bundle.format("schematicbrowser.fail.parse", link, f.name()));
                 }
             });
             if (loadedRepositories.get(link) != null) {
