@@ -447,7 +447,7 @@ public class SchematicBrowserDialog extends BaseDialog {
 
     void getSettings(){
         repositoryLinks.clear();
-        repositoryLinks.add(Core.settings.getString("schematicrepositories","MindustryDesignIt/main").split(";"));
+        repositoryLinks.add(Core.settings.getString("schematicrepositories","bend-n/design-it").split(";"));
 
         if (Core.settings.getString("hiddenschematicrepositories", "").isEmpty()) return;
         hiddenRepositories.clear();
