@@ -34,8 +34,8 @@ public class SchematicBrowserDialog extends BaseDialog {
     public final Seq<String> repositoryLinks = new Seq<>(), hiddenRepositories = new Seq<>(), unloadedRepositories = new Seq<>(), unfetchedRepositories = new Seq<>();
     public final ObjectMap<String, Seq<Schematic>> loadedRepositories = new ObjectMap<>(); // FINISHME: Optimize loading large repositories with 1000+ schematics
     private Schematic firstSchematic;
-    private String search = "";
-    private TextField searchField;
+    private String nameSearchString = "", descSearchString = "";
+    private TextField nameSearchField, descSearchField;
     private Runnable rebuildPane = () -> {}, rebuildTags = () -> {};
     private final Pattern ignoreSymbols = Pattern.compile("[`~!@#$%^&*()\\-_=+{}|;:'\",<.>/?]");
     private final Seq<String> tags = new Seq<>(), selectedTags = new Seq<>();
@@ -96,7 +96,7 @@ public class SchematicBrowserDialog extends BaseDialog {
 
     void setup(){
         Time.mark();
-        search = "";
+        nameSearchString = "";
 
         cont.top();
         cont.clear();
@@ -104,11 +104,22 @@ public class SchematicBrowserDialog extends BaseDialog {
         cont.table(s -> {
             s.left();
             s.image(Icon.zoom);
-            searchField = s.field(search, res -> {
-                search = res;
+            nameSearchField = s.field(nameSearchString, res -> {
+                nameSearchString = res;
                 rebuildPane.run();
             }).growX().get();
-            searchField.setMessageText("@schematic.search");
+            nameSearchField.setMessageText("@schematic.search");
+        }).fillX().padBottom(4);
+        cont.row();
+
+        cont.table(s -> {
+            s.left();
+            s.image(Icon.edit);
+            descSearchField = s.field(descSearchString, res -> {
+                descSearchString = res;
+                rebuildPane.run();
+            }).growX().get();
+            descSearchField.setMessageText("@schematicbrowser.searchdescription");
         }).fillX().padBottom(4);
         cont.row();
 
@@ -159,7 +170,7 @@ public class SchematicBrowserDialog extends BaseDialog {
             firstSchematic = null;
             for (String repo : loadedRepositories.keys()) {
                 if (hiddenRepositories.contains(repo)) continue;
-                setupRepoUi(t[0], ignoreSymbols.matcher(search.toLowerCase()).replaceAll(""), repo);
+                setupRepoUi(t[0], ignoreSymbols.matcher(nameSearchString.toLowerCase()).replaceAll(""), repo);
             }
         };
         rebuildPane.run();
@@ -180,8 +191,9 @@ public class SchematicBrowserDialog extends BaseDialog {
             int[] i = {0};
             for(Schematic s : loadedRepositories.get(repo)){
                 if(selectedTags.any() && !s.labels.containsAll(selectedTags)) continue;  // Tags
-                if(!search.isEmpty() && !(ignoreSymbols.matcher(s.name().toLowerCase()).replaceAll("").contains(searchString)
-                        || (Core.settings.getBool("schematicsearchdesc") && ignoreSymbols.matcher(s.description().toLowerCase()).replaceAll("").contains(searchString)))
+                if((!nameSearchString.isEmpty() || !descSearchString.isEmpty()) &&
+                        (nameSearchString.isEmpty() || !ignoreSymbols.matcher(s.name().toLowerCase()).replaceAll("").contains(nameSearchString)) &&
+                        (descSearchString.isEmpty() || !ignoreSymbols.matcher(s.description().toLowerCase()).replaceAll("").contains(descSearchString))
                 ) continue; // Search
                 if(firstSchematic == null) firstSchematic = s;
 
@@ -523,8 +535,8 @@ public class SchematicBrowserDialog extends BaseDialog {
     public Dialog show() {
         super.show();
 
-        if (Core.app.isDesktop() && searchField != null) {
-            Core.scene.setKeyboardFocus(searchField);
+        if (Core.app.isDesktop() && nameSearchField!= null) {
+            Core.scene.setKeyboardFocus(nameSearchField);
         }
 
         return this;
