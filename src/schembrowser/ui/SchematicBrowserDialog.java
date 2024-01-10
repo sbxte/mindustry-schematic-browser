@@ -11,6 +11,7 @@ import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import arc.util.serialization.*;
 import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.graphics.*;
@@ -21,9 +22,9 @@ import mindustry.ui.dialogs.*;
 import java.util.function.*;
 import java.util.regex.*;
 
-import static mindustry.Vars.*;
-
 import schembrowser.*;
+
+import static mindustry.Vars.*;
 
 // Inspired by eeve-lyn's schematic-browser mod
 // hhh, I hate coding ui.
@@ -304,7 +305,7 @@ public class SchematicBrowserDialog extends BaseDialog {
         }
     }
 
-    void rebuildAll(){
+    void rebuildResults(){
         tags.clear();
         selectedTags.clear();
         for (var repo : loadedRepositories.keys()){
@@ -497,36 +498,43 @@ public class SchematicBrowserDialog extends BaseDialog {
 
     void fetch(Seq<String> repos){
         Log.debug("Fetching schematics from repos: @", repos);
-        ui.showInfoFade("@schematicbrowser.fetching", 2f);
+        ui.showInfoFade("@client.schematic.browser.fetching", 2f);
         for (String link : repos){
-            Http.get(ghApi + "/repos/" + link + "/zipball/main", res -> handleRedirect(link, res), e -> Core.app.post(() -> {
-                Log.info("Schematic repository " + link + " could not be reached. " + e);
-                ui.showErrorMessage(Core.bundle.format("schematicbrowser.fail.fetch", link));
-            }));
+            Http.get(ghApi + "/repos/" + link, res -> handleBranch(link, res), e -> handleFetchError(link, e));
         }
     }
 
-    void handleRedirect(String link, Http.HttpResponse res){
-        if (res.getHeader("Location") != null) {
-            Http.get(res.getHeader("Location"), r -> handleRepo(link, r), e -> Core.app.post(() -> {
-                Log.info("Schematic repository " + link + " could not be reached. " + e);
-                ui.showErrorMessage(Core.bundle.format("schematicbrowser.fail.fetch", link));
-            }));
-        } else handleRepo(link, res);
+    void handleFetchError(String link, Throwable e){
+        Core.app.post(() -> {
+            Log.err("Schematic repository " + link + " could not be reached. " + e);
+            ui.showErrorMessage(Core.bundle.format("client.schematic.browser.fail.fetch", link));
+        });
     }
 
-    void handleRepo(String link, Http.HttpResponse res){
+    void handleBranch(String link, Http.HttpResponse response){
+        var json = new JsonReader().parse(response.getResultAsString());
+        var branch = json.getString("default_branch");
+        Http.get(ghApi + "/repos/" + link + "/zipball/" + branch, res -> handleRedirect(link, res), e -> handleFetchError(link, e));
+    }
+
+    void handleRedirect(String link, Http.HttpResponse response){
+        if (response.getHeader("Location") != null) {
+            Http.get(response.getHeader("Location"), r -> handleRepo(link, r), e -> handleFetchError(link, e));
+        } else handleRepo(link, response);
+    }
+
+    void handleRepo(String link, Http.HttpResponse response){
         String fileName = link.replace("/","") + ".zip";
         Fi filePath = mod.schematicRepoDirectory.child(fileName);
-        filePath.writeBytes(res.getResult());
+        filePath.writeBytes(response.getResult());
         Core.app.post(() ->{
             unfetchedRepositories.remove(link);
             unloadedRepositories.add(link);
-            ui.showInfoFade(Core.bundle.format("schematicbrowser.fetched", link), 2f);
+            ui.showInfoFade(Core.bundle.format("client.schematic.browser.fetched", link), 2f);
 
             if (unfetchedRepositories.size == 0) {
                 loadRepositories();
-                rebuildAll();
+                rebuildResults();
             }
         });
     }
@@ -656,7 +664,7 @@ public class SchematicBrowserDialog extends BaseDialog {
             }
             if (rebuild) {
                 browser.loadRepositories();
-                browser.rebuildAll();
+                browser.rebuildResults();
                 rebuild = false;
             }
             Core.settings.put("schematicrepositories", browser.repositoryLinks.toString(";"));
