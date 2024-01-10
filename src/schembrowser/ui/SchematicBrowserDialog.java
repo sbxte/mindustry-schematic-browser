@@ -33,7 +33,7 @@ public class SchematicBrowserDialog extends BaseDialog {
     private static final float tagh = 42f;
     private final SchematicRepositoriesDialog repositoriesDialog = new SchematicRepositoriesDialog(this);
     public final Seq<String> repositoryLinks = new Seq<>(), hiddenRepositories = new Seq<>(), unloadedRepositories = new Seq<>(), unfetchedRepositories = new Seq<>();
-    public final ObjectMap<String, Seq<Schematic>> loadedRepositories = new ObjectMap<>(); // FINISHME: Optimize loading large repositories with 1000+ schematics
+    public final ObjectMap<String, Seq<Schematic>> loadedRepositories = new ObjectMap<>();
     private Schematic firstSchematic;
     private String nameSearchString = "", descSearchString = "";
     private TextField nameSearchField, descSearchField;
@@ -486,12 +486,8 @@ public class SchematicBrowserDialog extends BaseDialog {
 //                    ui.showErrorMessage(Core.bundle.format("schematicbrowser.fail.parse", link, f.name()));
                 }
             });
-            if (loadedRepositories.get(link) != null) {
-                loadedRepositories.get(link).clear();
-                loadedRepositories.get(link).add(schems);
-            } else {
-                loadedRepositories.put(link, schems);
-            }
+            schems.sort();
+            loadedRepositories.get(link, () -> new Seq<>(schems.size)).clear().add(schems);
         }
         unloadedRepositories.clear();
     }
