@@ -31,7 +31,7 @@ public class SchematicBrowser extends Mod {
 
         // Keybind
         // Shift + <schematic menu>
-        Core.scene.addListener(new InputListener() { // TODO: Make it work for mobile?
+        Core.scene.addListener(new InputListener() { // FINISHME: Make it work for mobile?
             @Override
             public boolean keyDown(InputEvent event, KeyCode keycode) {
                 if (!state.isMenu() && !ui.chatfrag.shown() && !ui.schematics.isShown() && !ui.database.isShown()
