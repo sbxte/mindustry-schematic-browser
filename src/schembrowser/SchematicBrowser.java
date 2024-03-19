@@ -8,6 +8,7 @@ import arc.util.*;
 import mindustry.gen.*;
 import mindustry.input.*;
 import mindustry.mod.*;
+import mindustry.ui.dialogs.SettingsMenuDialog;
 import schembrowser.ui.*;
 
 import static mindustry.Vars.*;
@@ -44,5 +45,23 @@ public class SchematicBrowser extends Mod {
                 return super.keyDown(event, keycode);
             }
         });
+
+        // Settings Menu
+        ui.settings.getCategories().add(settingsCategory());
+    }
+
+    public static SettingsMenuDialog.SettingsCategory settingsCategory() {
+        return new SettingsMenuDialog.SettingsCategory(
+                Core.bundle.format("schematicbrowser"),
+//                new TextureRegionDrawable(Core.atlas.find("schematic-browser-logo")), // FINISHME: Use sprite logo
+                Icon.host,
+                SchematicBrowser::settingsMenuTable
+        );
+    }
+
+    public static void settingsMenuTable(SettingsMenuDialog.SettingsTable table) {
+        table.checkPref("schematicbrowserimporttags", true);
     }
 }
+
+
