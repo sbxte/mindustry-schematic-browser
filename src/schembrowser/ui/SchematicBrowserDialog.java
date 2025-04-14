@@ -235,9 +235,9 @@ public class SchematicBrowserDialog extends BaseDialog {
                                             if (!player.team().rules().infiniteResources && !state.rules.infiniteResources && player.core() != null && !player.core().items.has(reusableItemSeq)) txt.append("[#dd5656]"); // TODO: Fix this
                                             txt.append(s.name());
                                             reusableItemSeq.clear();
+                                            l.layout();
                                         }
                                     }).get();
-//                            label.runUpdate(); // Update the text instantly // TODO: Might break
                             label.setEllipsis(true);
                             label.setAlignment(Align.center);
                         }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);

@@ -1,11 +1,11 @@
 #the mod name as displayed in-game
-displayName: "Schematic Browser Reworked"
+displayName: "Schematic Browser Reworked (v8)"
 
 #the internal name of your mod
-name: "schematic-browser"
+name: "schematic-browser-v8"
 
 #your name
-author: "SByte, Eeve-lyn"
+author: "SByte, Eeve-lyn, zxtej"
 
 #the fully qualified main class of the mod
 main: "schembrowser.SchematicBrowser"
@@ -14,10 +14,10 @@ main: "schembrowser.SchematicBrowser"
 description: "A mod for browsing schematic repositories."
 
 #the mod version
-version: 1.0
+version: 1.1
 
 #the minimum game build required to run this mod
-minGameVersion: 145
+minGameVersion: 147
 
 #this is a java mod
 java: true
