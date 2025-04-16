@@ -1,8 +1,8 @@
 #the mod name as displayed in-game
-displayName: "Schematic Browser Reworked (v8)"
+displayName: "Schematic Browser"
 
 #the internal name of your mod
-name: "schematic-browser-v8"
+name: "scheme-browser"
 
 #your name
 author: "SByte, Eeve-lyn, zxtej"
