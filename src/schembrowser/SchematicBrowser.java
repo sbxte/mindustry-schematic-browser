@@ -23,6 +23,7 @@ public class SchematicBrowser extends Mod {
     @Override
     public void init() {
         schematicRepoDirectory = dataDirectory.child("schematic_repo/");
+        Migrations.run(this);
         schematicBrowserDialog = new SchematicBrowserDialog(this);
 
         ui.schematics.buttons.button("@schematicbrowser", Icon.host, () -> {
