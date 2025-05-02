@@ -184,13 +184,16 @@ public class SchematicBrowserDialog extends BaseDialog {
 
         table.add(repo).center().color(Pal.accent);
         table.row();
-        table.image().growX().padTop(10).height(3).color(Pal.accent).center();
+        table.image().growX().padTop(5).padBottom(5).height(3).color(Pal.accent).center();
         table.row();
+        Seq<Schematic> repoSchematics = loadedRepositories.get(repo);
+
+        if (repoSchematics != null)
         table.table(t -> {
             t.setCullingArea(new Rect()); // Make sure this isn't null for later
 
             int[] i = {0};
-            for(Schematic s : loadedRepositories.get(repo)){
+            for(Schematic s : repoSchematics){
                 if(selectedTags.any() && !s.labels.containsAll(selectedTags)) continue;  // Tags
                 if((!nameSearchString.isEmpty() || !descSearchString.isEmpty()) &&
                         (nameSearchString.isEmpty() || !ignoreSymbols.matcher(s.name().toLowerCase()).replaceAll("").contains(nameSearchString)) &&
@@ -271,6 +274,8 @@ public class SchematicBrowserDialog extends BaseDialog {
                 }
             }
         });
+        else table.add("\u26A0 " + Core.bundle.format("schematicbrowser.fail.load") + " \u26A0").center().color(Color.gray);
+        table.getCells().peek().padBottom(10);
         table.row();
     }
 
@@ -506,7 +511,7 @@ public class SchematicBrowserDialog extends BaseDialog {
                 }
             });
             schems.sort();
-            loadedRepositories.get(link, () -> new Seq<>(schems.size)).clear().add(schems);
+            loadedRepositories.get(link, () -> schems);
         }
         unloadedRepositories.clear();
     }
