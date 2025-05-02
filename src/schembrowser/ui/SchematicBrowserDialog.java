@@ -169,7 +169,7 @@ public class SchematicBrowserDialog extends BaseDialog {
         rebuildPane = () -> {
             t[0].clear();
             firstSchematic = null;
-            for (String repo : loadedRepositories.keys()) {
+            for (String repo : repositoryLinks) {
                 if (hiddenRepositories.contains(repo)) continue;
                 setupRepoUi(t[0], ignoreSymbols.matcher(nameSearchString.toLowerCase()).replaceAll(""), repo);
             }
@@ -235,9 +235,9 @@ public class SchematicBrowserDialog extends BaseDialog {
                                             if (!player.team().rules().infiniteResources && !state.rules.infiniteResources && player.core() != null && !player.core().items.has(reusableItemSeq)) txt.append("[#dd5656]"); // TODO: Fix this
                                             txt.append(s.name());
                                             reusableItemSeq.clear();
+                                            l.layout();
                                         }
                                     }).get();
-//                            label.runUpdate(); // Update the text instantly // TODO: Might break
                             label.setEllipsis(true);
                             label.setAlignment(Align.center);
                         }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
@@ -573,9 +573,10 @@ public class SchematicBrowserDialog extends BaseDialog {
         private boolean refetch = false;
         private boolean rebuild = false;
         private final ImageButton.ImageButtonStyle settingTogglei = new ImageButton.ImageButtonStyle(){{
-            imageCheckedColor = Pal.accent;
+            imageDisabledColor = Color.darkGray;
+            imageOverColor = Color.white;
             imageDownColor = Pal.accent;
-            imageUpColor = Color.darkGray;
+            imageUpColor = Color.gray;
         }};
 
         public SchematicRepositoriesDialog(SchematicBrowserDialog browser){
@@ -605,6 +606,25 @@ public class SchematicBrowserDialog extends BaseDialog {
             for (var i = 0; i < browser.repositoryLinks.size; i++) {
                 final String link = browser.repositoryLinks.get(i);
                 Table table = new Table();
+                int finalI = i;
+                table.button(Icon.upOpen, settingTogglei, 16f, () -> {
+                    if (finalI < 1) return;
+                    var links = browser.repositoryLinks;
+                    String temp = links.get(finalI);
+                    links.set(finalI, links.get(finalI - 1));
+                    links.set(finalI - 1, temp);
+                    rebuild();
+                    browser.rebuildResults();
+                }).padRight(20f).tooltip("@editor.moveup").get().setDisabled(i == 0);
+                table.button(Icon.downOpen, settingTogglei, 16f, () -> {
+                    if (finalI >= browser.repositoryLinks.size - 1) return;
+                    var links = browser.repositoryLinks;
+                    String temp = links.get(finalI);
+                    links.set(finalI, links.get(finalI + 1));
+                    links.set(finalI + 1, temp);
+                    rebuild();
+                    browser.rebuildResults();
+                }).padRight(20f).tooltip("@editor.movedown").get().setDisabled(i == browser.repositoryLinks.size - 1);
                 table.button(Icon.cancel, settingTogglei, 16f, () -> {
                     browser.repositoryLinks.remove(link);
                     browser.loadedRepositories.remove(link);
@@ -613,7 +633,6 @@ public class SchematicBrowserDialog extends BaseDialog {
                     rebuild = true;
                     rebuild();
                 }).padRight(20f).tooltip("@save.delete");
-                int finalI = i;
                 table.button(Icon.edit, settingTogglei, 16f, () -> editRepo(link, l -> {
                     browser.repositoryLinks.set(finalI, l);
                     browser.loadedRepositories.remove(link);
