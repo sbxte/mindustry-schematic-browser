@@ -17,6 +17,9 @@ import static mindustry.Vars.*;
 public class SchematicBrowser extends Mod {
     public  Fi schematicRepoDirectory;
     public SchematicBrowserDialog schematicBrowserDialog;
+    private KeyCode browserKeycode = null;
+    private int prevBrowserKeycode = -1;
+
     public SchematicBrowser() {
         Log.info("Loaded Schematic Browser");
     }
@@ -39,9 +42,12 @@ public class SchematicBrowser extends Mod {
         Core.scene.addListener(new InputListener() { // FINISHME: Make it work for mobile?
             @Override
             public boolean keyDown(InputEvent event, KeyCode keycode) {
-                if (!state.isMenu() && !ui.chatfrag.shown() && !ui.schematics.isShown() && !ui.database.isShown()
+                // This is terrible
+                if (browserKeycode == null || keycodeChanged()) getBoundKeycode();
+                if (keycode == SchematicBrowser.this.browserKeycode
+                        && !state.isMenu() && !ui.chatfrag.shown() && !ui.schematics.isShown() && !ui.database.isShown()
                         && !ui.consolefrag.shown() && !ui.content.isShown() && !Core.scene.hasKeyboard()
-                        && keycode == Core.keybinds.get(Binding.schematic_menu).key && Core.input.shift()
+                        && Core.input.shift()
                 ) {
                     ui.schematics.hide();
                     schematicBrowserDialog.show();
@@ -65,6 +71,49 @@ public class SchematicBrowser extends Mod {
 
     public static void settingsMenuTable(SettingsMenuDialog.SettingsTable table) {
         table.checkPref("schematicbrowserimporttags", true);
+    }
+
+    private boolean keycodeChanged(){
+        // Known issue: Keycode settings do not write immediately after changing the keybind
+        // But the performance hit for detecting changes immediately is not worth.
+        return prevBrowserKeycode != (prevBrowserKeycode = Core.settings.getInt("keybind-default-keyboard-schematic_menu-key", -1));
+    }
+
+    private void getBoundKeycode(){
+        boolean oldBindings = false;
+        try {
+            Binding.class.getDeclaredField("schematicMenu").get(null);
+        } catch (Exception ignored) {
+            oldBindings = true;
+        }
+        try {
+            if (!oldBindings) {
+                // Binding.schematicMenu.value.key
+                browserKeycode = (KeyCode)Reflect.get(
+                    Class.forName("arc.input.KeyBind$Axis"),
+                    Reflect.get(
+                        Class.forName("arc.input.KeyBind"),
+                        Binding.class.getDeclaredField("schematicMenu").get(null),
+                        "value"
+                    ),
+                    "key"
+                );
+            } else {
+                // Core.keybinds.get(Binding.schematic_menu).key
+                browserKeycode = (KeyCode)Reflect.get(
+                    Class.forName("arc.KeyBinds$Axis"),
+                    Reflect.invoke(
+                        Core.class.getDeclaredField("keybinds").get(null),
+                        "get",
+                        new Object[]{Binding.class.getDeclaredField("schematic_menu").get(null)},
+                        Class.forName("arc.KeyBinds$KeyBind")
+                    ),
+                    "key"
+                );
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }
 
