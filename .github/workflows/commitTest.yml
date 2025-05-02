@@ -34,9 +34,9 @@ jobs:
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "${{ steps.read_version_from_file.ver }}"
+        automatic_release_tag: "${{ steps.read_version_from_file.outputs.ver }}"
         prerelease: false
-        title: "${{ steps.read_version_from_file.ver }} (Mindustry v8)"
+        title: "${{ steps.read_version_from_file.outputs.ver }} (Mindustry v8)"
         files: |
           ./build/libs/*.jar
     - name: Automatic release (Latest)
@@ -45,6 +45,6 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
         prerelease: false
-        title: "Latest V8 Build"
+        title: "Latest Build (Mindustry v8)"
         files: |
           ./build/libs/*.jar
