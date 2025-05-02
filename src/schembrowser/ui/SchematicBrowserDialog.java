@@ -218,7 +218,7 @@ public class SchematicBrowserDialog extends BaseDialog {
                                 cpy.labels.clear();
                                 schematics.add(cpy);
                             }
-                            Reflect.invoke(ui.schematics, "checkTags", new Object[]{s}, Schematic.class); // Vars.ui.schematics.checkTags(s)
+                            Reflect.invoke(SchematicsDialog.class, ui.schematics, "checkTags", new Object[]{s}, Schematic.class); // Vars.ui.schematics.checkTags(s)
                         }).tooltip("@schematicbrowser.download");
                     }).growX().height(50f);
                     b.row();
