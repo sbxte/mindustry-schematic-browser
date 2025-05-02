@@ -26,7 +26,20 @@ jobs:
       with:
         name: ${{ github.event.repository.name }}
         path: build/libs/${{ github.event.repository.name }}.jar
-    - name: Automatic release
+    - name: Read version from file
+      id: read_version_from_file
+      run: |
+        echo "ver=$(sed -nE 's/^version: \\s*(\\S*)\\s*$/v\\1/p' mod.hjson)" >> $GITHUB_OUTPUT
+    - name: Automatic release (Current version)
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "${{ steps.read_version_from_file.ver }}"
+        prerelease: false
+        title: "${{ steps.read_version_from_file.ver }} (Mindustry v8)"
+        files: |
+          ./build/libs/*.jar
+    - name: Automatic release (Latest)
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
