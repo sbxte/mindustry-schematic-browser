@@ -5,6 +5,7 @@ import arc.files.*;
 import arc.input.*;
 import arc.scene.event.*;
 import arc.util.*;
+import mindustry.game.EventType.*;
 import mindustry.gen.*;
 import mindustry.input.*;
 import mindustry.mod.*;
@@ -26,9 +27,11 @@ public class SchematicBrowser extends Mod {
         Migrations.run(this);
         schematicBrowserDialog = new SchematicBrowserDialog(this);
 
-        ui.schematics.buttons.button("@schematicbrowser", Icon.host, () -> {
-            ui.schematics.hide();
-            schematicBrowserDialog.show();
+        Events.on(ClientLoadEvent.class, e -> {
+            ui.schematics.buttons.button("@schematicbrowser", Icon.host, () -> {
+                ui.schematics.hide();
+                schematicBrowserDialog.show();
+            });
         });
 
         // Keybind
